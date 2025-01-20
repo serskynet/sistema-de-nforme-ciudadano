@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sistema de Informes Ciudadanos</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
+  <style>
+    #map {
+      height: 400px;
+      width: 100%;
+    }
+  </style>
+</head>
+<body class="bg-gray-100">
+  <header class="bg-blue-600 text-white p-4 shadow-md">
+    <h1 class="text-2xl font-bold text-center">Sistema de Informes Ciudadanos</h1>
+  </header>
+
+  <main class="container mx-auto my-6">
+    <!-- Formulario de reporte -->
+    <section class="bg-white shadow-md rounded p-6 mb-6">
+      <h2 class="text-xl font-semibold mb-4">Enviar un Reporte</h2>
+      <form id="reportForm" class="space-y-4">
+        <div>
+          <label for="category" class="block text-sm font-medium text-gray-700">Categoría</label>
+          <select id="category" class="w-full border-gray-300 rounded-md shadow-sm">
+            <option value="calle">Calle Dañada</option>
+            <option value="alumbrado">Falta de Alumbrado Público</option>
+            <option value="basura">Recolección de Basuras</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="description" class="block text-sm font-medium text-gray-700">Descripción</label>
+          <textarea id="description" class="w-full border-gray-300 rounded-md shadow-sm" rows="3" placeholder="Describe el problema..."></textarea>
+        </div>
+
+        <div>
+          <label for="image" class="block text-sm font-medium text-gray-700">Adjuntar Imagen (opcional)</label>
+          <input type="file" id="image" class="block w-full text-gray-700" />
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Ubicación</label>
+          <button type="button" id="getLocation" class="bg-blue-500 text-white px-4 py-2 rounded-md">Usar mi ubicación</button>
+          <p id="locationStatus" class="text-sm text-gray-500 mt-2">Ubicación no obtenida</p>
+        </div>
+
+        <button type="submit" class="w-full bg-green-500 text-white py-2 rounded-md">Enviar Reporte</button>
+      </form>
+    </section>
+
+    <!-- Mapa interactivo -->
+    <section class="bg-white shadow-md rounded p-6 mb-6">
+      <h2 class="text-xl font-semibold mb-4">Mapa de Reportes</h2>
+      <div id="map"></div>
+    </section>
+
+    <!-- Lista de reportes -->
+    <section class="bg-white shadow-md rounded p-6">
+      <h2 class="text-xl font-semibold mb-4">Lista de Reportes</h2>
+      <ul id="reportList" class="space-y-4">
+        <li class="bg-gray-50 p-4 rounded shadow">
+          <h3 class="font-bold">Calle Dañada</h3>
+          <p>Descripción: Hueco en la Avenida Principal.</p>
+          <p class="text-sm text-gray-500">Estado: Pendiente</p>
+        </li>
+      </ul>
+    </section>
+  </main>
+
+  <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+  <script>
+    // Inicializar el mapa
+    const map = L.map('map').setView([9.3047, -75.3978], 13); // Coordenadas de Sincelejo
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    // Obtener ubicación del usuario
+    document.getElementById('getLocation').addEventListener('click', () => {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(position => {
+          const { latitude, longitude } = position.coords;
+          L.marker([latitude, longitude]).addTo(map).bindPopup('Tu ubicación').openPopup();
+          map.setView([latitude, longitude], 15);
+          document.getElementById('locationStatus').textContent = `Ubicación: ${latitude}, ${longitude}`;
+        }, () => {
+          alert('No se pudo obtener tu ubicación');
+        });
+      } else {
+        alert('La geolocalización no es compatible con tu navegador.');
+      }
+    });
+  </script>
+</body>
+</html>
